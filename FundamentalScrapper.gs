@@ -270,7 +270,7 @@ function fixBadTags(htmlString){
   return htmlString
           .replace(/(?:<nobr>|<br>)/g,'')
           .replace(/<th [^\/]*?>/g,'<th>')
-          .replace(/(?:&nbsp|&lrm;)/g,'');
+          .replace(/(?:&nbsp)/g,'');
 }
 
 /**********************************\
@@ -391,6 +391,16 @@ function getAlignedYears (profileData,balanceData,dividendData,historicPriceData
   if (years.length == 0){
     throw 'Could not find aligned years'
   }
+  years.sort();
+
+  //5 years are expected. Otherwise the formulas on Metadata do not work
+  if (years.length > 5){
+    Logger.log('W - Cutting more than 5 aligned years: ' + years);
+    years.slice(years.length-5)
+  }
+  else if (years.length < 5){
+    Logger.log('W - Less than 5 aligned years found: ' + years);
+  }
   return years;
 }
 
@@ -460,7 +470,7 @@ function getRelevantColumns(tableData,alignedYears){
 }
 
 function getCorrespondingRowNumber(keyFigure, keyFigureLayout){
-  var index = keyFigureLayout[0].indexOf(keyFigure);
+  var index = keyFigureLayout[0].indexOf(keyFigure.replace('\u200e',''));
   //Logger.log ('D - getCorrespondingRowNumber');
   //Logger.log ('"' + keyFigure.hexEncode() + '"');
   //Logger.log ('"' + keyFigure + '"');
